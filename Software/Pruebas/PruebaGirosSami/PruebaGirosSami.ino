@@ -11,8 +11,7 @@
 #define PIN_BUTTON_buttonStart 34
 #define PIN_BUTTON_STRATEGY 35
 
-int rightSpeed = 255;
-int leftSpeed = 255;
+int speed = 255;
 
 #define TICK_TURN_FRONT 59
 #define TICK_TURN_SIDE 95
@@ -58,8 +57,9 @@ void TurnMenu()
   case MAIN_MENU:
   {
     display.clear();   
-    display.drawString(0, 0, "Seleccion de lado del giro:"); 
-    display.drawString(0, 9, "Presione Start para no girar"); 
+    display.drawString(4, 0, "Selec. lado del giro"); 
+    display.drawString(0, 9, "---------------------"); 
+    display.drawString(0, 26, "No girar"); 
     display.display();
     if(buttonStrategy->GetIsPress()) turnMenu = LEFT_TURN;
     if(buttonStart->GetIsPress())  turnMenu = NO_TURN;
@@ -69,9 +69,9 @@ void TurnMenu()
   case LEFT_TURN:
   {
     display.clear();   
-    display.drawString(19, 0, "Seleccion de lado del giro"); 
+    display.drawString(4, 0, "Selec. lado del giro"); 
     display.drawString(0, 9, "---------------------"); 
-    display.drawString(0,37, "Giro hacia la izquierda"); 
+    display.drawString(0,26, "Girar a la izquierda"); 
     display.display();
     if(buttonStrategy->GetIsPress()) turnMenu = RIGHT_TURN;
     if(buttonStart->GetIsPress())
@@ -85,11 +85,11 @@ void TurnMenu()
   case RIGHT_TURN:
   {
     display.clear();   
-    display.drawString(19, 0, "Seleccion de lado del giro"); 
+    display.drawString(4, 0, "Selec. lado del giro"); 
     display.drawString(0, 9, "---------------------"); 
-    display.drawString(0,37, "Giro hacia la derecha"); 
+    display.drawString(0,26, "Girar a la derecha"); 
     display.display();
-    if(buttonStrategy->GetIsPress()) turnMenu = LEFT_TURN;
+    if(buttonStrategy->GetIsPress()) turnMenu = MAIN_MENU;
     if(buttonStart->GetIsPress())
     {
       turnMenu = TURN_FRONT;
@@ -98,12 +98,21 @@ void TurnMenu()
     break;
   }
 
+  case NO_TURN:
+  {
+    display.clear();   
+    display.drawString(0,26, "NO GIRO...");
+    display.display();
+    delay(3000);
+    break;
+  }
+
   case TURN_FRONT:
   {
     display.clear();   
-    display.drawString(19, 0, "Seleccion del angulo de giro"); 
+    display.drawString(1, 0, "Selec. angulo de giro");  
     display.drawString(0, 9, "---------------------"); 
-    display.drawString(0,37, "el Rival esta adelante"); 
+    display.drawString(0,26, "Giro de 45 grados"); 
     display.display();
     if(buttonStrategy->GetIsPress()) turnMenu = TURN_SIDE;
     if(buttonStart->GetIsPress())
@@ -116,9 +125,9 @@ void TurnMenu()
   case TURN_SIDE:
   {
     display.clear();   
-    display.drawString(19, 0, "Seleccion del angulo de giro"); 
+    display.drawString(1, 0, "Selec. angulo de giro"); 
     display.drawString(0, 9, "---------------------"); 
-    display.drawString(0,37, "El rival esta al lado"); 
+    display.drawString(0,26, "Giro de 90 grados"); 
     display.display();
     if(buttonStrategy->GetIsPress()) turnMenu = SHORT_BACK_TURN;
     if(buttonStart->GetIsPress())
@@ -131,9 +140,9 @@ void TurnMenu()
   case SHORT_BACK_TURN:
   {
     display.clear();   
-    display.drawString(19, 0, "Seleccion del angulo de giro"); 
+    display.drawString(1, 0, "Selec. angulo de giro"); 
     display.drawString(0, 9, "---------------------"); 
-    display.drawString(0,37, "El rival esta atras pero cerca"); 
+    display.drawString(0,26, "Giro de 120 grados"); 
     display.display();
     if(buttonStrategy->GetIsPress()) turnMenu = LONG_BACK_TURN;
     if(buttonStart->GetIsPress())
@@ -146,9 +155,9 @@ void TurnMenu()
   case LONG_BACK_TURN:
   {
     display.clear();   
-    display.drawString(19, 0, "Seleccion del angulo de giro"); 
+    display.drawString(1, 0, "Selec. angulo de giro"); 
     display.drawString(0, 9, "---------------------"); 
-    display.drawString(0,37, "El rival esta atras y lejos"); 
+    display.drawString(0,26, "Giro de 150 grados"); 
     display.display();
     if(buttonStrategy->GetIsPress()) turnMenu = TURN_FRONT;
     if(buttonStart->GetIsPress())
@@ -159,24 +168,16 @@ void TurnMenu()
     break;
   }
 
-  case NO_TURN:
-  {
-    display.clear();   
-    display.drawString(0,18, "NO GIRO...");
-    display.display();
-    delay(3000);
-    break;
-  }
   case TURN_TEST:
   {
     if(turnSide == LEFT)
     {
-      Sami->Left(255);
+      Sami->Left(speed);
       delay(tickTurn);
     }
     if(turnSide == RIGHT)
     {
-      Sami->Right(255);
+      Sami->Right(speed);
       delay(tickTurn);
     }
     turnMenu = MAIN_MENU;

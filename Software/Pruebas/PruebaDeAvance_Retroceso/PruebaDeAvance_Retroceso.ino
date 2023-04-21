@@ -61,9 +61,9 @@ void PositioningMenu()
     case MAIN_MENU:
     {
       display.clear();   
-      display.drawString(19, 0, "Elija Avance o Retroceso:"); 
+      display.drawString(4, 0, "Avanzar o Retroceder"); 
       display.drawString(0, 9, "---------------------"); 
-      display.drawString(0,37, "Presione Star para no moverse"); 
+      display.drawString(0,26, "No moverse"); 
       display.display();
       if(buttonStrategy->GetIsPress()) positioningMenu = SELECT_FORWARD;
       if(buttonStart->GetIsPress())  positioningMenu = NO_FORWARD_OR_BACKWARD;
@@ -73,7 +73,7 @@ void PositioningMenu()
     case NO_FORWARD_OR_BACKWARD:
     {
       display.clear();   
-      display.drawString(0, 18, "NO AVANZO"); 
+      display.drawString(0, 26, "NO AVANZO"); 
       display.display();
       delay(3000);
       break;
@@ -82,9 +82,9 @@ void PositioningMenu()
     case SELECT_FORWARD:
     {
       display.clear();   
-      display.drawString(19, 0, "Elija Avance o Retroceso:"); 
+      display.drawString(4, 0, "Avanzar o Retroceder"); 
       display.drawString(0, 9, "---------------------"); 
-      display.drawString(0,37, "Avance"); 
+      display.drawString(0,26, "Avance"); 
       display.display();
       if(buttonStrategy->GetIsPress()) positioningMenu = SELECT_BACKWARD;
       if(buttonStart->GetIsPress())
@@ -98,9 +98,9 @@ void PositioningMenu()
     case SELECT_BACKWARD:
     {
       display.clear();   
-      display.drawString(19, 0, "Elija Avance o Retroceso:"); 
+      display.drawString(4, 0, "Avanzar o Retroceder"); 
       display.drawString(0, 9, "---------------------"); 
-      display.drawString(0,37, "Retroceso"); 
+      display.drawString(0,26, "Retroceso"); 
       display.display();
       if(buttonStrategy->GetIsPress()) positioningMenu = MAIN_MENU;
       if(buttonStart->GetIsPress())
@@ -114,9 +114,9 @@ void PositioningMenu()
     case ADVANCE_SHORT:
     {
       display.clear();   
-      display.drawString(19, 0, "Menu Avance"); 
+      display.drawString(31, 0, "Menu Avance"); 
       display.drawString(0, 9, "---------------------"); 
-      display.drawString(0,37, "Avance a corta distancia"); 
+      display.drawString(0,26, "Avance corto"); 
       display.display();
       if(buttonStrategy->GetIsPress()) positioningMenu = ADVANCE_MEDIUM;
       if(buttonStart->GetIsPress())
@@ -130,9 +130,9 @@ void PositioningMenu()
     case ADVANCE_MEDIUM:
     {
       display.clear();   
-      display.drawString(19, 0, "Menu Avance"); 
+      display.drawString(31, 0, "Menu Avance"); 
       display.drawString(0, 9, "---------------------"); 
-      display.drawString(0,37, "Avance a media distancia"); 
+      display.drawString(0,26, "Avance medio"); 
       display.display();
       if(buttonStrategy->GetIsPress()) positioningMenu = ADVANCE_LONG;
       if(buttonStart->GetIsPress())
@@ -146,9 +146,9 @@ void PositioningMenu()
     case ADVANCE_LONG:
     {
       display.clear();   
-      display.drawString(19, 0, "Menu Avance"); 
+      display.drawString(31, 0, "Menu Avance"); 
       display.drawString(0, 9, "---------------------"); 
-      display.drawString(0,37, "Avance a larga distancia"); 
+      display.drawString(0,26, "Avance largo"); 
       display.display();
       if(buttonStrategy->GetIsPress()) positioningMenu = ADVANCE_SHORT;
       if(buttonStart->GetIsPress())
@@ -162,9 +162,9 @@ void PositioningMenu()
   case REVERSE_SHORT:
     {
       display.clear();   
-      display.drawString(19, 0, "Menu Avance"); 
+      display.drawString(22, 0, "Menu Retroceso"); 
       display.drawString(0, 9, "---------------------"); 
-      display.drawString(0,37, "Retroceso a corta distancia"); 
+      display.drawString(0,26, "Retroceso corto"); 
       display.display();
       if(buttonStrategy->GetIsPress()) positioningMenu = REVERSE_MEDIUM;
       if(buttonStart->GetIsPress())
@@ -178,9 +178,9 @@ void PositioningMenu()
     case REVERSE_MEDIUM:
     {
       display.clear();   
-      display.drawString(19, 0, "Menu Avance"); 
+      display.drawString(22, 0, "Menu Retroceso"); 
       display.drawString(0, 9, "---------------------"); 
-      display.drawString(0,37, "Retroceso a media distancia"); 
+      display.drawString(0,26, "Retroceso medio"); 
       display.display();
       if(buttonStrategy->GetIsPress()) positioningMenu = REVERSE_LONG;
       if(buttonStart->GetIsPress())
@@ -194,9 +194,9 @@ void PositioningMenu()
     case REVERSE_LONG:
     {
       display.clear();   
-      display.drawString(19, 0, "Menu Avance"); 
+      display.drawString(22, 0, "Menu Retroceso"); 
       display.drawString(0, 9, "---------------------"); 
-      display.drawString(0,37, "Retroceso a larga distancia"); 
+      display.drawString(0,26, "Retroceso largo"); 
       display.display();
       if(buttonStrategy->GetIsPress()) positioningMenu = REVERSE_SHORT;
       if(buttonStart->GetIsPress())
@@ -226,12 +226,12 @@ void PositioningMenu()
   }
 }
 
-void setup() {
+void setup() 
+{
   display.init();
-
 }
 
-void loop() {
+void loop() 
+{
   PositioningMenu();
-
 }
