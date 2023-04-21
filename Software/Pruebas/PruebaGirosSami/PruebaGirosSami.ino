@@ -58,10 +58,10 @@ void TurnMenu()
   case MAIN_MENU:
   {
     display.clear();   
-    display.drawString(19, 0, "Seleccion de lado del giro:"); 
+    display.drawString(0, 0, "Seleccion de lado del giro:"); 
     display.drawString(0, 9, "Presione Start para no girar"); 
     display.display();
-    if(buttonStrategy->GetIsPress()) turnMenu = TURN_FRONT;
+    if(buttonStrategy->GetIsPress()) turnMenu = LEFT_TURN;
     if(buttonStart->GetIsPress())  turnMenu = NO_TURN;
     break;
   }
@@ -161,7 +161,10 @@ void TurnMenu()
 
   case NO_TURN:
   {
-    tickTurn = 0;
+    display.clear();   
+    display.drawString(0,18, "NO GIRO...");
+    display.display();
+    delay(3000);
     break;
   }
   case TURN_TEST:
@@ -184,7 +187,7 @@ void TurnMenu()
 
 void setup() 
 {
-
+  display.init();
 }
 
 void loop() 

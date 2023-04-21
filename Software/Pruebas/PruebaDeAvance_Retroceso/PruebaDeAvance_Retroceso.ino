@@ -72,8 +72,10 @@ void PositioningMenu()
 
     case NO_FORWARD_OR_BACKWARD:
     {
-      tickForwardOrBackward = 0;
-      positioningMenu = TEST;
+      display.clear();   
+      display.drawString(0, 18, "NO AVANZO"); 
+      display.display();
+      delay(3000);
       break;
     }
 
@@ -225,11 +227,11 @@ void PositioningMenu()
 }
 
 void setup() {
-  // put your setup code here, to run once:
+  display.init();
 
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
+  PositioningMenu();
 
 }
