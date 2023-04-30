@@ -1,4 +1,4 @@
-375697478280684
+377380397920078
 EESTN5
 128x64OLED
 
@@ -1540,7 +1540,7 @@ ESP32-DEVKIT-V1-30Pines
 30
 30
 Footprints
-JST10mm
+JST-1mm
 
 
 0
@@ -1553,6 +1553,13 @@ JstXH3P
 0
 3
 3
+Footprints
+JstXH4P
+<b>HEADER</b>
+
+0
+4
+4
 Footprints
 LOGO_BOVER
 
