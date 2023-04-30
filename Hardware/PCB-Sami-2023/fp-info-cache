@@ -1,4 +1,4 @@
-372326956662995
+375697478280684
 EESTN5
 128x64OLED
 
@@ -1533,13 +1533,6 @@ TO220
 3
 3
 Footprints
-CristalAtmega128
-
-
-0
-2
-2
-Footprints
 ESP32-DEVKIT-V1-30Pines
 
 
@@ -1554,16 +1547,37 @@ JST10mm
 12
 12
 Footprints
+JstXH3P
+<b>HEADER</b>
+
+0
+3
+3
+Footprints
+LOGO_BOVER
+
+
+0
+0
+0
+Footprints
+LOGO_BOVER_B.CU
+
+
+0
+0
+0
+Footprints
+LOGO_BOVER_SER
+
+
+0
+0
+0
+Footprints
 MPU-6050
 
 
 0
 8
 8
-Footprints
-Stick
-
-
-0
-10
-10
