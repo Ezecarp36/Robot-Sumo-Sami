@@ -1,4 +1,4 @@
-377380397920078
+385796968136984
 EESTN5
 128x64OLED
 
@@ -1532,59 +1532,94 @@ TO220
 0
 3
 3
-Footprints
+footprints
 ESP32-DEVKIT-V1-30Pines
 
 
 0
 30
 30
-Footprints
+footprints
 JST-1mm
 
 
 0
 12
 12
-Footprints
+footprints
+JstXH2P
+
+
+0
+2
+2
+footprints
 JstXH3P
-<b>HEADER</b>
+
 
 0
 3
 3
-Footprints
+footprints
 JstXH4P
-<b>HEADER</b>
+
 
 0
 4
 4
-Footprints
+footprints
+JstXH6P
+
+
+0
+6
+6
+footprints
 LOGO_BOVER
 
 
 0
 0
 0
-Footprints
+footprints
 LOGO_BOVER_B.CU
 
 
 0
 0
 0
-Footprints
+footprints
 LOGO_BOVER_SER
 
 
 0
 0
 0
-Footprints
+footprints
+LogoSami
+
+
+0
+0
+0
+footprints
+LogoSami2
+
+
+0
+0
+0
+footprints
 MPU-6050
 
 
 0
 8
 8
+footprints
+Sami
+
+
+0
+0
+0
