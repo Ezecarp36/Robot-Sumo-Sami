@@ -1,11 +1,14 @@
 #include <EngineController.h>
-#include <SSD1306.h>
 #include <Button.h>
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+  
 
 #define PIN_RIGHT_ENGINE_DIR 19
 #define PIN_RIGHT_ENGINE_PWM 18
-#define PIN_LEFT_ENGINE_DIR 22
-#define PIN_LEFT_ENGINE_PWM 21
+#define PIN_LEFT_ENGINE_DIR 17
+#define PIN_LEFT_ENGINE_PWM 16
 #define PWM_CHANNEL_ENGINE_RIGHT 11
 #define PWM_CHANNEL_ENGINE_LEFT 12
 #define PIN_BUTTON_buttonStart 34
@@ -26,10 +29,10 @@ enum turnSide
 };
 int turnSide = LEFT;
 
-#define PIN_SDA 16
-#define PIN_SCL 17
+#define SCREEN_WIDTH 128 // OLED width,  in pixels
+#define SCREEN_HEIGHT 64 // OLED height, in pixels
 
-SSD1306 display (0x3C,PIN_SDA, PIN_SCL);
+Adafruit_SSD1306 oled(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 Button *buttonStrategy = new Button(PIN_BUTTON_STRATEGY);
 Button *buttonStart = new Button(PIN_BUTTON_buttonStart);
 IEngine *rightEngine = new Driver_G2_18V17(PIN_RIGHT_ENGINE_DIR, PIN_RIGHT_ENGINE_PWM, PWM_CHANNEL_ENGINE_RIGHT);
@@ -56,11 +59,16 @@ void TurnMenu()
   {
   case MAIN_MENU:
   {
-    display.clear();   
-    display.drawString(4, 0, "Selec. lado del giro"); 
-    display.drawString(0, 9, "---------------------"); 
-    display.drawString(0, 26, "No girar"); 
-    display.display();
+    oled.clearDisplay(); 
+    oled.setTextSize(1);
+    oled.setTextColor(WHITE);
+    oled.setCursor(4, 0);
+    oled.println("Selec. lado del giro"); 
+    oled.setCursor(0, 9);
+    oled.println("---------------------"); 
+    oled.setCursor(0, 26);
+    oled.println("No girar"); 
+    oled.display();
     if(buttonStrategy->GetIsPress()) turnMenu = LEFT_TURN;
     if(buttonStart->GetIsPress())  turnMenu = NO_TURN;
     break;
@@ -68,11 +76,14 @@ void TurnMenu()
 
   case LEFT_TURN:
   {
-    display.clear();   
-    display.drawString(4, 0, "Selec. lado del giro"); 
-    display.drawString(0, 9, "---------------------"); 
-    display.drawString(0,26, "Girar a la izquierda"); 
-    display.display();
+    oled.clearDisplay(); 
+    oled.setCursor(4, 0);
+    oled.println("Selec. lado del giro"); 
+    oled.setCursor(0, 9);
+    oled.println("---------------------"); 
+    oled.setCursor(0, 26);
+    oled.println("Girar a la izquierda"); 
+    oled.display();
     if(buttonStrategy->GetIsPress()) turnMenu = RIGHT_TURN;
     if(buttonStart->GetIsPress())
     {
@@ -84,11 +95,14 @@ void TurnMenu()
 
   case RIGHT_TURN:
   {
-    display.clear();   
-    display.drawString(4, 0, "Selec. lado del giro"); 
-    display.drawString(0, 9, "---------------------"); 
-    display.drawString(0,26, "Girar a la derecha"); 
-    display.display();
+    oled.clearDisplay(); 
+    oled.setCursor(4, 0);
+    oled.println("Selec. lado del giro"); 
+    oled.setCursor(0, 9);
+    oled.println("---------------------"); 
+    oled.setCursor(0, 26);
+    oled.println("Girar a la derecha"); 
+    oled.display();
     if(buttonStrategy->GetIsPress()) turnMenu = MAIN_MENU;
     if(buttonStart->GetIsPress())
     {
@@ -100,20 +114,24 @@ void TurnMenu()
 
   case NO_TURN:
   {
-    display.clear();   
-    display.drawString(0,26, "NO GIRO...");
-    display.display();
+    oled.clearDisplay(); 
+    oled.setCursor(1, 26);
+    oled.println("NO GIRO...");
+    oled.display();
     delay(3000);
     break;
   }
 
   case TURN_FRONT:
   {
-    display.clear();   
-    display.drawString(1, 0, "Selec. angulo de giro");  
-    display.drawString(0, 9, "---------------------"); 
-    display.drawString(0,26, "Giro de 45 grados"); 
-    display.display();
+    oled.clearDisplay();
+    oled.setCursor(1, 0);
+    oled.println("Selec. angulo de giro"); 
+    oled.setCursor(0, 9);
+    oled.println("---------------------"); 
+    oled.setCursor(0, 26);
+    oled.println("Giro de 45 grados"); 
+    oled.display();
     if(buttonStrategy->GetIsPress()) turnMenu = TURN_SIDE;
     if(buttonStart->GetIsPress())
     {
@@ -124,11 +142,14 @@ void TurnMenu()
   }
   case TURN_SIDE:
   {
-    display.clear();   
-    display.drawString(1, 0, "Selec. angulo de giro"); 
-    display.drawString(0, 9, "---------------------"); 
-    display.drawString(0,26, "Giro de 90 grados"); 
-    display.display();
+    oled.clearDisplay();
+    oled.setCursor(1, 0);
+    oled.println("Selec. angulo de giro"); 
+    oled.setCursor(0, 9);
+    oled.println("---------------------"); 
+    oled.setCursor(0, 26);
+    oled.println("Giro de 90 grados"); 
+    oled.display();
     if(buttonStrategy->GetIsPress()) turnMenu = SHORT_BACK_TURN;
     if(buttonStart->GetIsPress())
     {
@@ -139,11 +160,14 @@ void TurnMenu()
   }
   case SHORT_BACK_TURN:
   {
-    display.clear();   
-    display.drawString(1, 0, "Selec. angulo de giro"); 
-    display.drawString(0, 9, "---------------------"); 
-    display.drawString(0,26, "Giro de 120 grados"); 
-    display.display();
+    oled.clearDisplay(); 
+    oled.setCursor(1, 0);
+    oled.println("Selec. angulo de giro"); 
+    oled.setCursor(0, 9);
+    oled.println("---------------------"); 
+    oled.setCursor(0, 26);
+    oled.println("Giro de 120 grados"); 
+    oled.display();
     if(buttonStrategy->GetIsPress()) turnMenu = LONG_BACK_TURN;
     if(buttonStart->GetIsPress())
     {
@@ -154,11 +178,14 @@ void TurnMenu()
   }
   case LONG_BACK_TURN:
   {
-    display.clear();   
-    display.drawString(1, 0, "Selec. angulo de giro"); 
-    display.drawString(0, 9, "---------------------"); 
-    display.drawString(0,26, "Giro de 150 grados"); 
-    display.display();
+    oled.clearDisplay();  
+    oled.setCursor(1, 0);
+    oled.println("Selec. angulo de giro"); 
+    oled.setCursor(0, 9);
+    oled.println("---------------------"); 
+    oled.setCursor(0, 26);
+    oled.println("Giro de 150 grados"); 
+    oled.display();
     if(buttonStrategy->GetIsPress()) turnMenu = TURN_FRONT;
     if(buttonStart->GetIsPress())
     {
@@ -188,7 +215,8 @@ void TurnMenu()
 
 void setup() 
 {
-  display.init();
+  Serial.begin(9600);
+  oled.begin(SSD1306_SWITCHCAPVCC, 0x3C);
 }
 
 void loop() 
