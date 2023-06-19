@@ -70,7 +70,6 @@ enum positioningMenu
   SELECT_FORWARD_OR_BACKWARD,
   SELECT_FORWARD,
   SELECT_BACKWARD,
-  NO_FORWARD_OR_BACKWARD,
   ADVANCE_SHORT,
   ADVANCE_MEDIUM,
   ADVANCE_LONG,
@@ -87,7 +86,6 @@ enum turnMenu
   MAIN_MENU_TURN,
   LEFT_TURN,
   RIGHT_TURN,
-  NO_TURN,
   TURN_FRONT,
   TURN_SIDE,
   SHORT_BACK_TURN,
@@ -115,20 +113,17 @@ void PositioningMenu()
       oled.println("No moverse"); 
       oled.display();
       if(buttonStrategy->GetIsPress()) positioningMenu = SELECT_FORWARD;
-      if(buttonStart->GetIsPress())  positioningMenu = NO_FORWARD_OR_BACKWARD;
-      break;
-    }
-
-    case NO_FORWARD_OR_BACKWARD:
-    {
-      oled.clearDisplay();  
-      oled.setTextSize(1);
-      oled.setTextColor(WHITE);
-      oled.setCursor(0, 26);
-      oled.println("Me quedo quieto"); 
-      oled.display();
-      delay(2000);
-      test = TURN_MENU;
+      if(buttonStart->GetIsPress())
+      {
+        oled.clearDisplay();  
+        oled.setTextSize(1);
+        oled.setTextColor(WHITE);
+        oled.setCursor(0, 26);
+        oled.println("Me quedo quieto"); 
+        oled.display();
+        delay(2000);
+        test = TURN_MENU;
+      }
       break;
     }
 
@@ -321,7 +316,15 @@ void TurnMenu()
     oled.println("No girar"); 
     oled.display();
     if(buttonStrategy->GetIsPress()) turnMenu = LEFT_TURN;
-    if(buttonStart->GetIsPress())  turnMenu = NO_TURN;
+    if(buttonStart->GetIsPress())
+    {
+      oled.clearDisplay(); 
+      oled.setCursor(1, 26);
+      oled.println("NO GIRO...");
+      oled.display();
+      delay(2000);
+      test = TEST;
+    }
     break;
   }
 
@@ -360,17 +363,6 @@ void TurnMenu()
       turnMenu = TURN_FRONT;
       turnSide = RIGHT;
     }  
-    break;
-  }
-
-  case NO_TURN:
-  {
-    oled.clearDisplay(); 
-    oled.setCursor(1, 26);
-    oled.println("NO GIRO...");
-    oled.display();
-    delay(2000);
-    test = TEST;
     break;
   }
 
