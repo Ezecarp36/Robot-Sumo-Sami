@@ -22,13 +22,28 @@ int tickForwardOrBackward;
 
 enum forwardOrBackward
 {
+  NONE,
   FORWARD,
   BACKWARD
 };
-int forwardOrBackward;
+int forwardOrBackward = NONE;
 
-#define SCREEN_WIDTH 128 
-#define SCREEN_HEIGHT 64 
+#define TICK_TURN_FRONT 59
+#define TICK_TURN_SIDE 95
+#define TICK_SHORT_BACK_TURN 115
+#define TICK_LONG_BACK_TURN 120
+int tickTurn;
+
+enum turnSide
+{
+  NONE_TURN,
+  LEFT,
+  RIGHT
+};
+int turnSide = NONE_TURN;
+
+#define SCREEN_WIDTH 128 // OLED width,  in pixels
+#define SCREEN_HEIGHT 64 // OLED height, in pixels
 
 Adafruit_SSD1306 oled(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 Button *buttonStrategy = new Button(PIN_BUTTON_STRATEGY);
@@ -38,6 +53,17 @@ IEngine *leftEngine = new Driver_G2_18V17(PIN_LEFT_ENGINE_DIR, PIN_LEFT_ENGINE_P
 EngineController *Sami = new EngineController(rightEngine, leftEngine);
 
 
+//declaro variables para el menu de test
+enum test
+{
+  POSITIONING_MENU,
+  TURN_MENU,
+  TEST
+};
+
+int test = POSITIONING_MENU;
+
+//Declaro variables para el menu de avance y retroceso
 enum positioningMenu
 {
   MAIN_MENU,
@@ -51,10 +77,26 @@ enum positioningMenu
   REVERSE_SHORT,
   REVERSE_MEDIUM,
   REVERSE_LONG,
-  TEST
 };
 
 int positioningMenu = MAIN_MENU;
+
+//Declaro variables para el menu de giro
+enum turnMenu
+{
+  MAIN_MENU_TURN,
+  LEFT_TURN,
+  RIGHT_TURN,
+  NO_TURN,
+  TURN_FRONT,
+  TURN_SIDE,
+  SHORT_BACK_TURN,
+  LONG_BACK_TURN,
+};
+int turnMenu = MAIN_MENU_TURN;
+
+//---------------------------------------------------------------------------------------------------------------------------------------------------------//
+//Menu de avance o retroceso//
 
 void PositioningMenu()
 {
@@ -86,7 +128,7 @@ void PositioningMenu()
       oled.println("Me quedo quieto"); 
       oled.display();
       delay(2000);
-      positioningMenu = MAIN_MENU;
+      test = TURN_MENU;
       break;
     }
 
@@ -148,7 +190,7 @@ void PositioningMenu()
       if(buttonStart->GetIsPress())
       {
         tickForwardOrBackward = TICK_SHORT;
-        positioningMenu = TEST;
+        test = TURN_MENU;
       }
       break;
     }
@@ -169,7 +211,7 @@ void PositioningMenu()
       if(buttonStart->GetIsPress())
       {
         tickForwardOrBackward = TICK_MEDIUM;
-        positioningMenu = TEST;
+        test = TURN_MENU;
       }
       break;
     }
@@ -190,7 +232,7 @@ void PositioningMenu()
       if(buttonStart->GetIsPress())
       {
         tickForwardOrBackward = TICK_LONG;
-        positioningMenu = TEST;
+        test = TURN_MENU;
       }
       break;
     }
@@ -211,7 +253,7 @@ void PositioningMenu()
       if(buttonStart->GetIsPress())
       {
         tickForwardOrBackward = TICK_SHORT;
-        positioningMenu = TEST;
+        test = TURN_MENU;
       }
       break;
     }
@@ -232,7 +274,7 @@ void PositioningMenu()
       if(buttonStart->GetIsPress())
       {
         tickForwardOrBackward = TICK_MEDIUM;
-        positioningMenu = TEST;
+        test = TURN_MENU;
       }
       break;
     }
@@ -253,29 +295,211 @@ void PositioningMenu()
       if(buttonStart->GetIsPress())
       {
         tickForwardOrBackward = TICK_LONG;
-        positioningMenu = TEST;
+        test = TURN_MENU;
       }
       break;
     }
+  }
+}
+//---------------------------------------------------------------------------------------------------------------------------------------------------------//
+//Menu de giro//
 
-  case TEST:
+void TurnMenu()
+{
+  switch (turnMenu)
   {
-    if(forwardOrBackward == FORWARD)
+  case MAIN_MENU_TURN:
+  {
+    oled.clearDisplay(); 
+    oled.setTextSize(1);
+    oled.setTextColor(WHITE);
+    oled.setCursor(4, 0);
+    oled.println("Selec. lado del giro"); 
+    oled.setCursor(0, 9);
+    oled.println("---------------------"); 
+    oled.setCursor(0, 26);
+    oled.println("No girar"); 
+    oled.display();
+    if(buttonStrategy->GetIsPress()) turnMenu = LEFT_TURN;
+    if(buttonStart->GetIsPress())  turnMenu = NO_TURN;
+    break;
+  }
+
+  case LEFT_TURN:
+  {
+    oled.clearDisplay(); 
+    oled.setCursor(4, 0);
+    oled.println("Selec. lado del giro"); 
+    oled.setCursor(0, 9);
+    oled.println("---------------------"); 
+    oled.setCursor(0, 26);
+    oled.println("Girar a la izquierda"); 
+    oled.display();
+    if(buttonStrategy->GetIsPress()) turnMenu = RIGHT_TURN;
+    if(buttonStart->GetIsPress())
     {
-      Sami->Forward(Speed);
-      delay(tickForwardOrBackward);
+      turnMenu = TURN_FRONT;
+      turnSide = LEFT;
+    }  
+    break;
+  }
+
+  case RIGHT_TURN:
+  {
+    oled.clearDisplay(); 
+    oled.setCursor(4, 0);
+    oled.println("Selec. lado del giro"); 
+    oled.setCursor(0, 9);
+    oled.println("---------------------"); 
+    oled.setCursor(0, 26);
+    oled.println("Girar a la derecha"); 
+    oled.display();
+    if(buttonStrategy->GetIsPress()) turnMenu = MAIN_MENU_TURN;
+    if(buttonStart->GetIsPress())
+    {
+      turnMenu = TURN_FRONT;
+      turnSide = RIGHT;
+    }  
+    break;
+  }
+
+  case NO_TURN:
+  {
+    oled.clearDisplay(); 
+    oled.setCursor(1, 26);
+    oled.println("NO GIRO...");
+    oled.display();
+    delay(2000);
+    test = TEST;
+    break;
+  }
+
+  case TURN_FRONT:
+  {
+    oled.clearDisplay();
+    oled.setCursor(1, 0);
+    oled.println("Selec. angulo de giro"); 
+    oled.setCursor(0, 9);
+    oled.println("---------------------"); 
+    oled.setCursor(0, 26);
+    oled.println("Giro de 45 grados"); 
+    oled.display();
+    if(buttonStrategy->GetIsPress()) turnMenu = TURN_SIDE;
+    if(buttonStart->GetIsPress())
+    {
+      tickTurn = TICK_TURN_FRONT;
+      test = TEST;
+    }
+    break;
+  }
+  case TURN_SIDE:
+  {
+    oled.clearDisplay();
+    oled.setCursor(1, 0);
+    oled.println("Selec. angulo de giro"); 
+    oled.setCursor(0, 9);
+    oled.println("---------------------"); 
+    oled.setCursor(0, 26);
+    oled.println("Giro de 90 grados"); 
+    oled.display();
+    if(buttonStrategy->GetIsPress()) turnMenu = SHORT_BACK_TURN;
+    if(buttonStart->GetIsPress())
+    {
+      tickTurn = TICK_TURN_SIDE;
+      test = TEST;
+    }
+    break;
+  }
+  case SHORT_BACK_TURN:
+  {
+    oled.clearDisplay(); 
+    oled.setCursor(1, 0);
+    oled.println("Selec. angulo de giro"); 
+    oled.setCursor(0, 9);
+    oled.println("---------------------"); 
+    oled.setCursor(0, 26);
+    oled.println("Giro de 120 grados"); 
+    oled.display();
+    if(buttonStrategy->GetIsPress()) turnMenu = LONG_BACK_TURN;
+    if(buttonStart->GetIsPress())
+    {
+      tickTurn = TICK_SHORT_BACK_TURN;
+      test = TEST;
+    }
+    break;
+  }
+  case LONG_BACK_TURN:
+  {
+    oled.clearDisplay();  
+    oled.setCursor(1, 0);
+    oled.println("Selec. angulo de giro"); 
+    oled.setCursor(0, 9);
+    oled.println("---------------------"); 
+    oled.setCursor(0, 26);
+    oled.println("Giro de 150 grados"); 
+    oled.display();
+    if(buttonStrategy->GetIsPress()) turnMenu = TURN_FRONT;
+    if(buttonStart->GetIsPress())
+    {
+      tickTurn = TICK_LONG_BACK_TURN;
+      test = TEST;
+    }
+    break;
+  }
+  }
+}
+//---------------------------------------------------------------------------------------------------------------------------------------------------------//
+//Menu//
+
+void Test()
+{
+  switch(test)
+  {
+    case POSITIONING_MENU:
+    {
+      PositioningMenu();
+      break;
     }
 
-    if(forwardOrBackward == BACKWARD)
+    case TURN_MENU:
     {
-      Sami->Backward(Speed);
-      delay(tickForwardOrBackward);
+      TurnMenu();
+      break;
     }
-    tickForwardOrBackward = 0;
-    positioningMenu = MAIN_MENU;
-    
-    break;
-  }    
+
+    case TEST:
+    {
+      if(forwardOrBackward == FORWARD)
+      {
+        Sami->Forward(Speed);
+        delay(tickForwardOrBackward);
+      }
+
+      if(forwardOrBackward == BACKWARD)
+      {
+        Sami->Backward(Speed);
+        delay(tickForwardOrBackward);
+      }    
+
+      if(turnSide == LEFT)
+      {
+        Sami->Left(Speed);
+        delay(tickTurn);
+      }
+      if(turnSide == RIGHT)
+      {
+        Sami->Right(Speed);
+        delay(tickTurn);
+      }
+
+      Sami->Stop();
+      turnMenu = MAIN_MENU_TURN;
+      positioningMenu = MAIN_MENU;
+      test = POSITIONING_MENU;
+      tickTurn = 0;
+      tickForwardOrBackward = 0;
+      break;
+    }
   }
 }
 
@@ -286,7 +510,8 @@ void setup()
   oled.begin(SSD1306_SWITCHCAPVCC, 0x3C);
 }
 
+
 void loop() 
 {
-  PositioningMenu();
+  Test();
 }
