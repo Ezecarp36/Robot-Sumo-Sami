@@ -4,7 +4,7 @@ Button::Button(int p)
 {
     pin = p;
 
-    pinMode(pin, INPUT);
+    pinMode(pin, INPUT_PULLDOWN);
 }
 
 void Button::SetFlank(bool f)

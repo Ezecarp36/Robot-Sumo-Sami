@@ -31,8 +31,8 @@ void loop()
 
     if (millis() > currentTime + TICK_DEBUG)
     {
-        SerialBT.print("RightTatami: ");
-        SerialBT.print(RightTatamiReading);
+        //SerialBT.print("RightTatami: ");
+        //SerialBT.print(RightTatamiReading);
         SerialBT.print(" // LeftTatami: "); 
         SerialBT.println(LeftTatamiReading);
     }

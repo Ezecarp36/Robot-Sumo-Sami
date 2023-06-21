@@ -15,11 +15,11 @@
 #define PWM_CHANNEL_ENGINE_RIGHT 11
 #define PWM_CHANNEL_ENGINE_LEFT 12
 //Velocidades para los motores (segun el caso)
-#define SEARCH_SPEED 75
-#define ATTACK_SPEED_LDR 250
-#define ATTACK_SPEED 180
+#define SEARCH_SPEED 80
+#define ATTACK_SPEED_LDR 255
+#define ATTACK_SPEED 200
 #define STRONG_ATTACK_SPEED 210
-#define ATTACK_SPEED_AGGRESSIVE 240
+#define ATTACK_SPEED_AGGRESSIVE 230
 #define AVERAGE_SPEED 100
 //Para la estrategia SemiPasiva
 int slowAttack = 40;
@@ -104,12 +104,12 @@ int turnSide = NONE_TURN;
 
 //<------------------------------------------------------------------------------------------------------------->//
 //Instancia de objetos para cada periferico del Robot
-Adafruit_SSD1306 oled(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
-Button *buttonStrategy = new Button(PIN_BUTTON_STRATEGY);
-Button *buttonStart = new Button(PIN_BUTTON_BUTTON_START);
 IEngine *rightEngine = new Driver_G2_18V17(PIN_RIGHT_ENGINE_DIR, PIN_RIGHT_ENGINE_PWM, PWM_CHANNEL_ENGINE_RIGHT);
 IEngine *leftEngine = new Driver_G2_18V17(PIN_LEFT_ENGINE_DIR, PIN_LEFT_ENGINE_PWM, PWM_CHANNEL_ENGINE_LEFT);
 EngineController *Sami = new EngineController(rightEngine, leftEngine);
+Adafruit_SSD1306 oled(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
+Button *buttonStrategy = new Button(PIN_BUTTON_STRATEGY);
+Button *buttonStart = new Button(PIN_BUTTON_BUTTON_START);
 Isensor *sharpRight = new Sharp_GP2Y0A60S(PIN_SENSOR_RIGHT);
 Isensor *sharpLeft = new Sharp_GP2Y0A60S(PIN_SENSOR_LEFT);
 AnalogSensor *rightTatami = new AnalogSensor(PIN_SENSOR_TATAMI_RIGHT);
@@ -127,7 +127,6 @@ void sensorsReading()
   }
 //<------------------------------------------------------------------------------------------------------------->//
 //Funciones para imprimir las lecturas de los sensores por el serial Bluetooth
-
 void printLdr()
 {
   if (millis() > currentTimeLdr + TICK_DEBUG_LDR)
@@ -207,6 +206,39 @@ enum turnMenu
 };
 int turnMenu = MAIN_MENU_TURN;
 //<------------------------------------------------------------------------------------------------------------->//
+//Funcion que se ejecuta en cualquier estrategia al iniciar el combate, es para reposicionarse de la mejor manera para encontrar al rival (según le indique)
+void fight()
+    {
+      oled.clearDisplay();  
+      oled.setCursor(0, 28);
+      oled.println("---------------------"); 
+      oled.display();
+      delay(5000);
+      
+      if(forwardOrBackward == FORWARD)
+      {
+        Sami->Forward(ATTACK_SPEED);
+        delay(tickForwardOrBackward);
+      }
+
+      if(forwardOrBackward == BACKWARD)
+      {
+        Sami->Backward(ATTACK_SPEED);
+        delay(tickForwardOrBackward);
+      }
+      if(turnSide == LEFT)
+      {
+        Sami->Left(ATTACK_SPEED);
+        delay(tickTurn);
+      }
+      if(turnSide == RIGHT)
+      {
+        Sami->Right(ATTACK_SPEED);
+        delay(tickTurn);
+      }
+    }
+
+//<------------------------------------------------------------------------------------------------------------->//
 //Maquina de estados para la estrategia PASSIVE
 enum passive
 {
@@ -236,21 +268,7 @@ void Passive()
     oled.display();
     if (buttonStart->GetIsPress())
     {
-      oled.clearDisplay();  
-      oled.setCursor(0, 28);
-      oled.println("---------------------"); 
-      oled.display();
-      delay(5000);
-      if(turnSide == LEFT)
-      {
-        Sami->Left(ATTACK_SPEED);
-        delay(tickTurn);
-      }
-      if(turnSide == RIGHT)
-      {
-        Sami->Right(ATTACK_SPEED);
-        delay(tickTurn);
-      }
+      fight();
       passive = SEARCH_PASSIVE;
     } 
     break;
@@ -345,21 +363,7 @@ void SemiPassive()
     oled.display();
     if (buttonStart->GetIsPress())
     {
-      oled.clearDisplay();  
-      oled.setCursor(0, 28);
-      oled.println("---------------------"); 
-      oled.display();
-      delay(5000);
-      if(turnSide == LEFT)
-      {
-        Sami->Left(ATTACK_SPEED);
-        delay(tickTurn);
-      }
-      if(turnSide == RIGHT)
-      {
-        Sami->Right(ATTACK_SPEED);
-        delay(tickTurn);
-      }
+      fight();
       passive = SEARCH_PASSIVE;
     } 
     break;
@@ -487,21 +491,7 @@ void SemiAggressive()
     oled.display();
     if (buttonStart->GetIsPress())
     {
-      oled.clearDisplay();  
-      oled.setCursor(0, 28);
-      oled.println("---------------------"); 
-      oled.display();
-      delay(5000);
-      if(turnSide == LEFT)
-      {
-        Sami->Left(ATTACK_SPEED);
-        delay(tickTurn);
-      }
-      if(turnSide == RIGHT)
-      {
-        Sami->Right(ATTACK_SPEED);
-        delay(tickTurn);
-      }
+      fight();
       passive = SEARCH_PASSIVE;
     } 
     break;
@@ -595,21 +585,7 @@ void Aggressive()
     oled.display();
     if (buttonStart->GetIsPress())
     {
-      oled.clearDisplay();  
-      oled.setCursor(0, 28);
-      oled.println("---------------------"); 
-      oled.display();
-      delay(5000);
-      if(turnSide == LEFT)
-      {
-        Sami->Left(ATTACK_SPEED);
-        delay(tickTurn);
-      }
-      if(turnSide == RIGHT)
-      {
-        Sami->Right(ATTACK_SPEED);
-        delay(tickTurn);
-      }
+      fight();
       passive = SEARCH_PASSIVE;
     } 
     break;
@@ -1009,7 +985,7 @@ enum strategiesMenu
   SEMI_AGGRESSIVE_MENU,
   AGGRESSIVE_MENU,
 };
-int menu = MAIN_MENU;
+int strategiesMenu = STRATEGY_MAIN_MENU;
 
 void StrategiesMenu()
 {
@@ -1031,7 +1007,7 @@ void StrategiesMenu()
     oled.setCursor(0, 46);
     oled.println("Aggressive"); 
     oled.display();
-    if(buttonStrategy->GetIsPress()) menu = PASSIVE_MENU;
+    if(buttonStrategy->GetIsPress()) strategiesMenu = PASSIVE_MENU;
     break;
   }
   
@@ -1045,7 +1021,7 @@ void StrategiesMenu()
     oled.setCursor(0, 19);
     oled.println("Passive"); 
     oled.display();
-    if(buttonStrategy->GetIsPress()) menu = SEMI_PASSIVE_MENU;
+    if(buttonStrategy->GetIsPress()) strategiesMenu = SEMI_PASSIVE_MENU;
     if(buttonStart->GetIsPress()) mainMenu = PASSIVE;
     break;
   }
@@ -1060,7 +1036,7 @@ void StrategiesMenu()
     oled.setCursor(0, 28);
     oled.println("Semi-Passive"); 
     oled.display();
-    if(buttonStrategy->GetIsPress()) menu = SEMI_AGGRESSIVE_MENU;
+    if(buttonStrategy->GetIsPress()) strategiesMenu = SEMI_AGGRESSIVE_MENU;
     if(buttonStart->GetIsPress()) mainMenu = SEMI_PASSIVE;
     break;
   }
@@ -1075,7 +1051,7 @@ void StrategiesMenu()
     oled.setCursor(0, 37);
     oled.println("Semi-Aggressive"); 
     oled.display();
-    if(buttonStrategy->GetIsPress()) menu = AGGRESSIVE_MENU;
+    if(buttonStrategy->GetIsPress()) strategiesMenu = AGGRESSIVE_MENU;
     if(buttonStart->GetIsPress()) mainMenu = SEMI_AGGRESSIVE;
     break;
   }
@@ -1090,7 +1066,7 @@ void StrategiesMenu()
     oled.setCursor(0, 46);
     oled.println("Aggressive"); 
     oled.display();
-    if(buttonStrategy->GetIsPress()) menu = PASSIVE_MENU;
+    if(buttonStrategy->GetIsPress()) strategiesMenu = PASSIVE_MENU;
     if(buttonStart->GetIsPress()) mainMenu = AGGRESSIVE;
     break;
   }

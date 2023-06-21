@@ -29,8 +29,8 @@ void loop()
 
     if (millis() > currentTime + TICK_DEBUG)
     {
-      SerialBT.print("RightDistance: ");
-      SerialBT.print(rightDistance);
+      //SerialBT.print("RightDistance: ");
+      //SerialBT.print(rightDistance);
       SerialBT.print(" // LeftDistance: ");
       SerialBT.println(leftDistance);
     }
