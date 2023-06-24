@@ -4,10 +4,10 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 
-#define PIN_RIGHT_ENGINE_DIR 16
-#define PIN_RIGHT_ENGINE_PWM 17
-#define PIN_LEFT_ENGINE_DIR 18
-#define PIN_LEFT_ENGINE_PWM 19
+#define PIN_RIGHT_ENGINE_DIR 18
+#define PIN_RIGHT_ENGINE_PWM 19
+#define PIN_LEFT_ENGINE_DIR 16
+#define PIN_LEFT_ENGINE_PWM 17
 #define PWM_CHANNEL_ENGINE_RIGHT 11
 #define PWM_CHANNEL_ENGINE_LEFT 12
 #define PIN_BUTTON_buttonStart 34
@@ -16,9 +16,9 @@
 int Speed = 255;
 
 int tickForwardOrBackward;
-#define TICK_SHORT 10
-#define TICK_MEDIUM 20
-#define TICK_LONG 30
+#define TICK_SHORT 100
+#define TICK_MEDIUM 150
+#define TICK_LONG 200
 
 enum forwardOrBackward
 {
@@ -461,6 +461,7 @@ void Test()
 
     case TEST:
     {
+      delay(3000);
       if(forwardOrBackward == FORWARD)
       {
         Sami->Forward(Speed);
@@ -483,7 +484,6 @@ void Test()
         Sami->Right(Speed);
         delay(tickTurn);
       }
-
       Sami->Stop();
       turnMenu = MAIN_MENU_TURN;
       positioningMenu = MAIN_MENU;

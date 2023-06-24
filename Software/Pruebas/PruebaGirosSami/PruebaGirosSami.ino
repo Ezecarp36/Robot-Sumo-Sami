@@ -5,10 +5,10 @@
 #include <Adafruit_SSD1306.h>
   
 
-#define PIN_RIGHT_ENGINE_DIR 16
-#define PIN_RIGHT_ENGINE_PWM 17
-#define PIN_LEFT_ENGINE_DIR 18
-#define PIN_LEFT_ENGINE_PWM 19
+#define PIN_RIGHT_ENGINE_DIR 18
+#define PIN_RIGHT_ENGINE_PWM 19
+#define PIN_LEFT_ENGINE_DIR 16
+#define PIN_LEFT_ENGINE_PWM 17
 #define PWM_CHANNEL_ENGINE_RIGHT 11
 #define PWM_CHANNEL_ENGINE_LEFT 12
 #define PIN_BUTTON_buttonStart 34
@@ -199,6 +199,7 @@ void TurnMenu()
 
   case TURN_TEST:
   {
+    delay(3000);
     if(turnSide == LEFT)
     {
       Sami->Left(speed);
@@ -209,6 +210,7 @@ void TurnMenu()
       Sami->Right(speed);
       delay(tickTurn);
     }
+    Sami->Stop();
     tickTurn = 0;
     turnMenu = MAIN_MENU;
     break;
@@ -226,6 +228,4 @@ void setup()
 void loop() 
 {
   TurnMenu();
-  if (buttonStrategy->GetIsPress()) Serial.println("Button strategy is press");
-  if (buttonStart->GetIsPress()) Serial.println("Button start is press");
 }
