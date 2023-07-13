@@ -275,7 +275,6 @@ void PositioningMenu()
     Sami->Stop();
     tickForwardOrBackward = 0;
     positioningMenu = MAIN_MENU;
-    
     break;
   }    
   }

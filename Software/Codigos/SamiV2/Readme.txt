@@ -1,0 +1,1 @@
+Codigo de sami con la selección de giro y Ldr

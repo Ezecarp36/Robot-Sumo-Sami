@@ -2,7 +2,7 @@
 #include "BluetoothSerial.h"
 
 
-#define PIN_SENSOR_LDR 32
+#define PIN_SENSOR_LDR 23
 #define MONTADO 100
 int ldrReading;
 
@@ -18,12 +18,14 @@ AnalogSensor *sensorLdr = new AnalogSensor(PIN_SENSOR_LDR);
 
 void setup() {
   SerialBT.begin("Sami");
+  pinMode(PIN_SENSOR_LDR, INPUT);
+  Serial.begin(9600);
 }
 
 void loop() {
-  ldrReading = sensorLdr->SensorRead();
+  ldrReading = analogRead(PIN_SENSOR_LDR);
   if (millis() > currentTime + TICK_DEBUG) {
-    SerialBT.print("ldr reading: ");
-    SerialBT.println(ldrReading);
+    Serial.print("ldr reading: ");
+    Serial.println(ldrReading);
   }
 }

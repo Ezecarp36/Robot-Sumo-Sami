@@ -45,7 +45,6 @@ enum turnMenu
   MAIN_MENU,
   LEFT_TURN,
   RIGHT_TURN,
-  NO_TURN,
   TURN_FRONT,
   TURN_SIDE,
   SHORT_BACK_TURN,
@@ -71,7 +70,15 @@ void TurnMenu()
     oled.println("No girar"); 
     oled.display();
     if(buttonStrategy->GetIsPress()) turnMenu = LEFT_TURN;
-    if(buttonStart->GetIsPress())  turnMenu = NO_TURN;
+    if(buttonStart->GetIsPress())
+    {
+      oled.clearDisplay(); 
+      oled.setCursor(1, 26);
+      oled.println("NO GIRO...");
+      oled.display();
+      delay(3000);
+      turnMenu = MAIN_MENU;
+    }
     break;
   }
 
@@ -110,17 +117,6 @@ void TurnMenu()
       turnMenu = TURN_FRONT;
       turnSide = RIGHT;
     }  
-    break;
-  }
-
-  case NO_TURN:
-  {
-    oled.clearDisplay(); 
-    oled.setCursor(1, 26);
-    oled.println("NO GIRO...");
-    oled.display();
-    delay(3000);
-    turnMenu = MAIN_MENU;
     break;
   }
 

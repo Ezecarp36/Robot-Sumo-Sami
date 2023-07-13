@@ -16,13 +16,14 @@
 #define PWM_CHANNEL_ENGINE_LEFT 12
 //Velocidades para los motores (segun el caso)
 #define SEARCH_SPEED 80
-#define ATTACK_SPEED_LDR 255
-#define ATTACK_SPEED 200
-#define STRONG_ATTACK_SPEED 210
-#define ATTACK_SPEED_AGGRESSIVE 230
 #define AVERAGE_SPEED 100
+#define ATTACK_SPEED 220
+#define ATTACK_SPEED_AGGRESSIVE 235
+#define ATTACK_SPEED_LDR 240
+#define MAX_SPEED 255
 //Para la estrategia SemiPasiva
-int slowAttack = 40;
+int speedSlowAttack = 40;
+int tickSlowAttack = 380;
 int lowAttackCont;
 unsigned long currentTimeAttack = 0;
 #define TICK_LOW_ATTACK 1600
@@ -33,11 +34,6 @@ int tickTurn;
 #define TICK_TURN_SIDE 95
 #define TICK_SHORT_BACK_TURN 115
 #define TICK_LONG_BACK_TURN 120
-//Ticks de reposicionamiento
-int tickForwardOrBackward;
-#define TICK_SHORT 20
-#define TICK_MEDIUM 30
-#define TICK_LONG 40
 
 //Botones
 #define PIN_BUTTON_BUTTON_START 34
@@ -78,15 +74,6 @@ unsigned long currentTimeLdr = 0;
 #error Bluetooth is not enabled! Please run `make menuconfig` to and enable it
 #endif
 BluetoothSerial SerialBT;
-
-//Seleccion de reposicionamiento
-enum forwardOrBackward
-{
-  NONE,
-  FORWARD,
-  BACKWARD
-};
-int forwardOrBackward = NONE;
 
 //Seleccion de lado de giro
 enum turnSide
@@ -167,7 +154,6 @@ void printTatami()
 //Menu principal
 enum mainMenu
 {
-  POSITIONING_MENU,
   TURN_MENU,
   STRATEGIES_MENU,
   PASSIVE,
@@ -175,23 +161,7 @@ enum mainMenu
   SEMI_AGGRESSIVE,
   AGGRESSIVE,
 };
-int mainMenu = POSITIONING_MENU;
-
-//Menu de reposicionamiento
-enum positioningMenu
-{
-  MAIN_MENU,
-  SELECT_FORWARD,
-  SELECT_BACKWARD,
-  ADVANCE_SHORT,
-  ADVANCE_MEDIUM,
-  ADVANCE_LONG,
-  REVERSE_SHORT,
-  REVERSE_MEDIUM,
-  REVERSE_LONG,
-};
-
-int positioningMenu = MAIN_MENU;
+int mainMenu = TURN_MENU;
 
 //Menu de giro
 enum turnMenu
@@ -211,21 +181,9 @@ void fight()
     {
       oled.clearDisplay();  
       oled.setCursor(0, 28);
-      oled.println("---------------------"); 
+      oled.println("Fight"); 
       oled.display();
       delay(5000);
-      
-      if(forwardOrBackward == FORWARD)
-      {
-        Sami->Forward(ATTACK_SPEED);
-        delay(tickForwardOrBackward);
-      }
-
-      if(forwardOrBackward == BACKWARD)
-      {
-        Sami->Backward(ATTACK_SPEED);
-        delay(tickForwardOrBackward);
-      }
       if(turnSide == LEFT)
       {
         Sami->Left(ATTACK_SPEED);
@@ -233,7 +191,7 @@ void fight()
       }
       if(turnSide == RIGHT)
       {
-        Sami->Right(ATTACK_SPEED);
+        Sami->Right(MAX_SPEED);
         delay(tickTurn);
       }
     }
@@ -306,18 +264,14 @@ void Passive()
 
     case ATTACK_PASSIVE:
     {
+      Sami->Stop();
+      if(distSharpRight > RIVAL && distSharpLeft > RIVAL) passive = SEARCH_PASSIVE;
+      if(distSharpRight <= RIVAL && distSharpLeft > RIVAL) passive = TURN_RIGHT_PASSIVE;
+      if(distSharpRight > RIVAL && distSharpLeft <= RIVAL) passive = TURN_LEFT_PASSIVE;
       if(ldr < MONTADO)
       {
         Sami->Forward(ATTACK_SPEED_LDR, ATTACK_SPEED_LDR);
         if(leftTatamiRead < BORDE_TATAMI || righTatamiRead < BORDE_TATAMI) passive = TATAMI_LIMIT_PASSIVE;
-      }
-
-      else 
-      {
-        Sami->Stop();
-        if(distSharpRight > RIVAL && distSharpLeft > RIVAL) passive = SEARCH_PASSIVE;
-        if(distSharpRight <= RIVAL && distSharpLeft > RIVAL) passive = TURN_RIGHT_PASSIVE;
-        if(distSharpRight > RIVAL && distSharpLeft <= RIVAL) passive = TURN_LEFT_PASSIVE;
       }
       break;
     }
@@ -326,7 +280,7 @@ void Passive()
     {
     Sami->Backward(AVERAGE_SPEED, AVERAGE_SPEED);
     delay(300);
-    if(leftTatamiRead > BORDE_TATAMI && righTatamiRead > BORDE_TATAMI) passive = SEARCH_PASSIVE;
+    passive = SEARCH_PASSIVE;
     break;
     }
   }
@@ -364,7 +318,7 @@ void SemiPassive()
     if (buttonStart->GetIsPress())
     {
       fight();
-      passive = SEARCH_PASSIVE;
+      semiPassive = SEARCH_SEMI_PASSIVE;
     } 
     break;
     }
@@ -380,12 +334,6 @@ void SemiPassive()
       {
         semiPassive = LOW_ATTACK_SEMI_PASSIVE;
       }
-      if(ldr < MONTADO)
-      {
-        Sami->Forward(ATTACK_SPEED, ATTACK_SPEED);
-        if(leftTatamiRead < BORDE_TATAMI || righTatamiRead < BORDE_TATAMI) semiPassive = TATAMI_LIMIT_SEMI_PASSIVE;
-      }
-      break;    
     }
 
     case TURN_RIGHT_PASSIVE:
@@ -395,11 +343,6 @@ void SemiPassive()
       if(distSharpRight > RIVAL && distSharpLeft > RIVAL) semiPassive = SEARCH_SEMI_PASSIVE;
       if(distSharpRight > RIVAL && distSharpLeft <= RIVAL) semiPassive = TURN_LEFT_SEMI_PASSIVE;
       if(distSharpRight <= RIVAL && distSharpLeft <= RIVAL) semiPassive = ATTACK_SEMI_PASSIVE;
-      if(ldr < MONTADO)
-      {
-        Sami->Forward(ATTACK_SPEED, ATTACK_SPEED);
-        if(leftTatamiRead < BORDE_TATAMI || righTatamiRead < BORDE_TATAMI) semiPassive = TATAMI_LIMIT_SEMI_PASSIVE;
-      }
       break;
     }
 
@@ -410,24 +353,11 @@ void SemiPassive()
       if(distSharpRight > RIVAL && distSharpLeft > RIVAL) semiPassive = SEARCH_SEMI_PASSIVE;
       if(distSharpRight <= RIVAL && distSharpLeft > RIVAL) semiPassive = TURN_RIGHT_SEMI_PASSIVE;
       if(distSharpRight <= RIVAL && distSharpLeft <= RIVAL) semiPassive = ATTACK_SEMI_PASSIVE;
-      if(ldr < MONTADO)
-      {
-        Sami->Forward(ATTACK_SPEED, ATTACK_SPEED);
-        if(leftTatamiRead < BORDE_TATAMI || righTatamiRead < BORDE_TATAMI) semiPassive = TATAMI_LIMIT_SEMI_PASSIVE;
-      }
       break;
     }
 
     case ATTACK_SEMI_PASSIVE:
     {
-      if(ldr < MONTADO)
-      {
-        Sami->Forward(ATTACK_SPEED, ATTACK_SPEED);
-        if(leftTatamiRead < BORDE_TATAMI || righTatamiRead < BORDE_TATAMI) semiPassive = TATAMI_LIMIT_SEMI_PASSIVE;
-      }
-
-      else 
-      {
         Sami->Stop();
         if(distSharpRight > RIVAL && distSharpLeft > RIVAL) semiPassive = SEARCH_SEMI_PASSIVE;
         if(distSharpRight <= RIVAL && distSharpLeft > RIVAL) semiPassive = TURN_RIGHT_SEMI_PASSIVE;
@@ -436,16 +366,21 @@ void SemiPassive()
         {
           semiPassive = LOW_ATTACK_SEMI_PASSIVE;
         }
-      }
+        if(ldr < MONTADO)
+        {
+          Sami->Forward(ATTACK_SPEED_LDR, ATTACK_SPEED_LDR);
+          if(leftTatamiRead < BORDE_TATAMI || righTatamiRead < BORDE_TATAMI) semiPassive = TATAMI_LIMIT_SEMI_PASSIVE;
+        }     
       break;
     }
 
     case LOW_ATTACK_SEMI_PASSIVE:
     {
       lowAttackCont++;
-      slowAttack = slowAttack + (lowAttackCont*10);
-      Sami->Forward(slowAttack, slowAttack);
-      delay(388);
+      speedSlowAttack = speedSlowAttack + (lowAttackCont*10);
+      tickSlowAttack = tickSlowAttack + (lowAttackCont*10);
+      Sami->Forward(speedSlowAttack, speedSlowAttack);
+      delay(tickSlowAttack);
       currentTimeAttack = millis();
       semiPassive = ATTACK_SEMI_PASSIVE;
       break;
@@ -455,8 +390,8 @@ void SemiPassive()
     {
         Sami->Backward(AVERAGE_SPEED, AVERAGE_SPEED);
         delay(300);
-    if(leftTatamiRead > BORDE_TATAMI && righTatamiRead > BORDE_TATAMI) semiPassive = SEARCH_SEMI_PASSIVE;
-    break;
+        semiPassive = SEARCH_SEMI_PASSIVE;
+        break;
     }
   }
 }
@@ -492,7 +427,7 @@ void SemiAggressive()
     if (buttonStart->GetIsPress())
     {
       fight();
-      passive = SEARCH_PASSIVE;
+      semiAggressive = SEARCH_SEMI_AGGRESSIVE;
     } 
     break;
     }
@@ -532,16 +467,13 @@ void SemiAggressive()
       if(distSharpRight > RIVAL && distSharpLeft > RIVAL) semiAggressive = SEARCH_SEMI_AGGRESSIVE;
       if(distSharpRight <= RIVAL && distSharpLeft > RIVAL) semiAggressive = TURN_RIGHT_SEMI_AGGRESSIVE;
       if(distSharpRight > RIVAL && distSharpLeft <= RIVAL) semiAggressive = TURN_LEFT_SEMI_AGGRESSIVE;
-      if(leftTatamiRead < 250 || righTatamiRead < 250) semiPassive = TATAMI_LIMIT_SEMI_AGGRESSIVE;
+      if(leftTatamiRead < 250 || righTatamiRead < 250) semiAggressive = TATAMI_LIMIT_SEMI_AGGRESSIVE;
       if(ldr < MONTADO) 
       {
         Sami->Forward(ATTACK_SPEED_LDR, ATTACK_SPEED_LDR);
-        if(leftTatamiRead < BORDE_TATAMI || righTatamiRead < BORDE_TATAMI) semiPassive = TATAMI_LIMIT_SEMI_AGGRESSIVE;
+        if(leftTatamiRead < BORDE_TATAMI || righTatamiRead < BORDE_TATAMI) semiAggressive = TATAMI_LIMIT_SEMI_AGGRESSIVE;
       }
-      if(distSharpRight > RIVAL_NEAR && distSharpLeft > RIVAL_NEAR)
-      {
-        Sami->Forward(STRONG_ATTACK_SPEED, STRONG_ATTACK_SPEED);
-      }
+      if(leftTatamiRead < BORDE_TATAMI || righTatamiRead < BORDE_TATAMI) semiAggressive = TATAMI_LIMIT_SEMI_AGGRESSIVE;
       break;
     }
 
@@ -549,8 +481,8 @@ void SemiAggressive()
     {
       Sami->Backward(AVERAGE_SPEED, AVERAGE_SPEED);
       delay(300);
-    if(leftTatamiRead > BORDE_TATAMI && righTatamiRead > BORDE_TATAMI) semiAggressive = SEARCH_SEMI_AGGRESSIVE;
-    break;
+      semiAggressive = SEARCH_SEMI_AGGRESSIVE;
+      break;
     }
   }
 }
@@ -586,7 +518,7 @@ void Aggressive()
     if (buttonStart->GetIsPress())
     {
       fight();
-      passive = SEARCH_PASSIVE;
+      aggressive = SEARCH_AGGRESSIVE;
     } 
     break;
     }
@@ -594,29 +526,29 @@ void Aggressive()
     case SEARCH_AGGRESSIVE:
     {
       Sami->Right(SEARCH_SPEED, SEARCH_SPEED);
-      if(leftTatamiRead < BORDE_TATAMI || righTatamiRead < BORDE_TATAMI) semiAggressive = TATAMI_LIMIT_AGGRESSIVE;
-      if(distSharpRight <= RIVAL && distSharpLeft > RIVAL) semiAggressive = TURN_RIGHT_AGGRESSIVE;
-      if(distSharpRight > RIVAL && distSharpLeft <= RIVAL) semiAggressive = TURN_LEFT_AGGRESSIVE;
-      if(distSharpRight <= RIVAL && distSharpLeft <= RIVAL) semiAggressive = ATTACK_AGGRESSIVE; 
+      if(leftTatamiRead < BORDE_TATAMI || righTatamiRead < BORDE_TATAMI) aggressive = TATAMI_LIMIT_AGGRESSIVE;
+      if(distSharpRight <= RIVAL && distSharpLeft > RIVAL) aggressive = TURN_RIGHT_AGGRESSIVE;
+      if(distSharpRight > RIVAL && distSharpLeft <= RIVAL) aggressive = TURN_LEFT_AGGRESSIVE;
+      if(distSharpRight <= RIVAL && distSharpLeft <= RIVAL) aggressive = ATTACK_AGGRESSIVE; 
     }
 
     case TURN_RIGHT_AGGRESSIVE:
     {
       Sami->Right(SEARCH_SPEED, SEARCH_SPEED);
-      if(leftTatamiRead < BORDE_TATAMI || righTatamiRead < BORDE_TATAMI) semiAggressive = TATAMI_LIMIT_AGGRESSIVE;
-      if(distSharpRight > RIVAL && distSharpLeft > RIVAL) semiAggressive = SEARCH_AGGRESSIVE;
-      if(distSharpRight > RIVAL && distSharpLeft <= RIVAL) semiAggressive = TURN_LEFT_AGGRESSIVE;
-      if(distSharpRight <= RIVAL && distSharpLeft <= RIVAL) semiAggressive = ATTACK_AGGRESSIVE;
+      if(leftTatamiRead < BORDE_TATAMI || righTatamiRead < BORDE_TATAMI) aggressive = TATAMI_LIMIT_AGGRESSIVE;
+      if(distSharpRight > RIVAL && distSharpLeft > RIVAL) aggressive = SEARCH_AGGRESSIVE;
+      if(distSharpRight > RIVAL && distSharpLeft <= RIVAL) aggressive = TURN_LEFT_AGGRESSIVE;
+      if(distSharpRight <= RIVAL && distSharpLeft <= RIVAL) aggressive = ATTACK_AGGRESSIVE;
       break;
     }
 
     TURN_LEFT_AGGRESSIVE:
     {
       Sami->Left(SEARCH_SPEED, SEARCH_SPEED);
-      if(leftTatamiRead < BORDE_TATAMI || righTatamiRead < BORDE_TATAMI) semiAggressive = TATAMI_LIMIT_AGGRESSIVE;
-      if(distSharpRight > RIVAL && distSharpLeft > RIVAL) semiAggressive = SEARCH_AGGRESSIVE;
-      if(distSharpRight <= RIVAL && distSharpLeft > RIVAL) semiAggressive = TURN_RIGHT_AGGRESSIVE;
-      if(distSharpRight <= RIVAL && distSharpLeft <= RIVAL) semiAggressive = ATTACK_AGGRESSIVE;
+      if(leftTatamiRead < BORDE_TATAMI || righTatamiRead < BORDE_TATAMI) aggressive = TATAMI_LIMIT_AGGRESSIVE;
+      if(distSharpRight > RIVAL && distSharpLeft > RIVAL) aggressive = SEARCH_AGGRESSIVE;
+      if(distSharpRight <= RIVAL && distSharpLeft > RIVAL) aggressive = TURN_RIGHT_AGGRESSIVE;
+      if(distSharpRight <= RIVAL && distSharpLeft <= RIVAL) aggressive = ATTACK_AGGRESSIVE;
       break;
     }
 
@@ -625,10 +557,12 @@ void Aggressive()
     {
       Sami->Forward(ATTACK_SPEED_AGGRESSIVE, ATTACK_SPEED_AGGRESSIVE);
       if(distSharpRight > RIVAL || distSharpLeft > RIVAL) aggressive = SEARCH_AGGRESSIVE;
+      if(distSharpRight <= RIVAL && distSharpLeft > RIVAL) aggressive = TURN_RIGHT_AGGRESSIVE;
+      if(distSharpRight > RIVAL && distSharpLeft <= RIVAL) aggressive = TURN_LEFT_AGGRESSIVE;
       if(leftTatamiRead < BORDE_TATAMI || righTatamiRead < BORDE_TATAMI) aggressive = TATAMI_LIMIT_AGGRESSIVE;
       if(ldr < MONTADO) 
       {
-        Sami->Forward(ATTACK_SPEED_LDR, ATTACK_SPEED_LDR);
+        Sami->Forward(MAX_SPEED, MAX_SPEED);
         if(leftTatamiRead < BORDE_TATAMI || righTatamiRead < BORDE_TATAMI) aggressive = TATAMI_LIMIT_AGGRESSIVE;
       }
       break;
@@ -638,202 +572,8 @@ void Aggressive()
     {
     Sami->Backward(AVERAGE_SPEED, AVERAGE_SPEED);
     delay(300);
-    if(leftTatamiRead > BORDE_TATAMI && righTatamiRead > BORDE_TATAMI) aggressive = SEARCH_AGGRESSIVE;
+    aggressive = SEARCH_AGGRESSIVE;
     break;
-    }
-  }
-}
-
-
-//<------------------------------------------------------------------------------------------------------------->//
-//Menu de seleccion de reposicionamiento
-void PositioningMenu()
-{
-  switch(positioningMenu)
-  {
-    case MAIN_MENU:
-    {
-      oled.clearDisplay();
-      oled.setTextSize(1);
-      oled.setTextColor(WHITE);
-      oled.setCursor(4, 0);
-      oled.println("Avanzar o Retroceder"); 
-      oled.setCursor(0, 9);
-      oled.println("---------------------"); 
-      oled.setCursor(0, 26);
-      oled.println("No moverse"); 
-      oled.display();
-      if(buttonStrategy->GetIsPress()) positioningMenu = SELECT_FORWARD;
-      if(buttonStart->GetIsPress()) mainMenu = TURN_MENU;
-      break;
-    }
-
-    case SELECT_FORWARD:
-    {
-      oled.clearDisplay(); 
-      oled.setTextSize(1);
-      oled.setTextColor(WHITE);
-      oled.setCursor(4, 0);
-      oled.println("Avanzar o Retroceder"); 
-      oled.setCursor(0, 9);
-      oled.println("---------------------"); 
-      oled.setCursor(0, 26);
-      oled.println("Avance"); 
-      oled.display();
-      if(buttonStrategy->GetIsPress()) positioningMenu = SELECT_BACKWARD;
-      if(buttonStart->GetIsPress())
-      {
-        forwardOrBackward = FORWARD;
-        positioningMenu = ADVANCE_SHORT;        
-      }
-      break;
-    }
-
-    case SELECT_BACKWARD:
-    {
-      oled.clearDisplay(); 
-      oled.setTextSize(1);
-      oled.setTextColor(WHITE);
-      oled.setCursor(4, 0);
-      oled.println("Avanzar o Retroceder"); 
-      oled.setCursor(0, 9);
-      oled.println("---------------------"); 
-      oled.setCursor(0, 26);
-      oled.println("Retroceso"); 
-      oled.display();
-      if(buttonStrategy->GetIsPress()) positioningMenu = MAIN_MENU;
-      if(buttonStart->GetIsPress())
-      {
-        forwardOrBackward = BACKWARD;
-        positioningMenu = REVERSE_SHORT;
-      }
-      break;
-    }
-
-    case ADVANCE_SHORT:
-    {
-      oled.clearDisplay(); 
-      oled.setTextSize(1);
-      oled.setTextColor(WHITE);
-      oled.setCursor(4, 0);
-      oled.println("Selec largo de avance"); 
-      oled.setCursor(0, 9);
-      oled.println("---------------------"); 
-      oled.setCursor(0, 26);
-      oled.println("Avance corto"); 
-      oled.display();
-      if(buttonStrategy->GetIsPress()) positioningMenu = ADVANCE_MEDIUM;
-      if(buttonStart->GetIsPress())
-      {
-        tickForwardOrBackward = TICK_SHORT;
-        mainMenu = TURN_MENU;
-      }
-      break;
-    }
-
-    case ADVANCE_MEDIUM:
-    {
-      oled.clearDisplay(); 
-      oled.setTextSize(1);
-      oled.setTextColor(WHITE);
-      oled.setCursor(4, 0);
-      oled.println("Selec largo de avance"); 
-      oled.setCursor(0, 9);
-      oled.println("---------------------"); 
-      oled.setCursor(0, 26);
-      oled.println("Avance medio"); 
-      oled.display();
-      if(buttonStrategy->GetIsPress()) positioningMenu = ADVANCE_LONG;
-      if(buttonStart->GetIsPress())
-      {
-        tickForwardOrBackward = TICK_MEDIUM;
-        mainMenu = TURN_MENU;
-      }
-      break;
-    }
-
-    case ADVANCE_LONG:
-    {
-      oled.clearDisplay(); 
-      oled.setTextSize(1);
-      oled.setTextColor(WHITE);
-      oled.setCursor(4, 0);
-      oled.println("Selec largo de avance"); 
-      oled.setCursor(0, 9);
-      oled.println("---------------------"); 
-      oled.setCursor(0, 26);
-      oled.println("Avance largo"); 
-      oled.display();
-      if(buttonStrategy->GetIsPress()) positioningMenu = ADVANCE_SHORT;
-      if(buttonStart->GetIsPress())
-      {
-        tickForwardOrBackward = TICK_LONG;
-        mainMenu = TURN_MENU;
-      }
-      break;
-    }
-
-  case REVERSE_SHORT:
-    {
-      oled.clearDisplay(); 
-      oled.setTextSize(1);
-      oled.setTextColor(WHITE);
-      oled.setCursor(1, 0);
-      oled.println("Selec largo de retroceso"); 
-      oled.setCursor(0, 9);
-      oled.println("---------------------"); 
-      oled.setCursor(0, 26);
-      oled.println("Retroceso corto"); 
-      oled.display();
-      if(buttonStrategy->GetIsPress()) positioningMenu = REVERSE_MEDIUM;
-      if(buttonStart->GetIsPress())
-      {
-        tickForwardOrBackward = TICK_SHORT;
-        mainMenu = TURN_MENU;
-      }
-      break;
-    }
-
-    case REVERSE_MEDIUM:
-    {
-      oled.clearDisplay(); 
-      oled.setTextSize(1);
-      oled.setTextColor(WHITE);
-      oled.setCursor(1, 0);
-      oled.println("Selec largo de retroceso"); 
-      oled.setCursor(0, 9);
-      oled.println("---------------------"); 
-      oled.setCursor(0, 26);
-      oled.println("Retroceso medio"); 
-      oled.display();
-      if(buttonStrategy->GetIsPress()) positioningMenu = REVERSE_LONG;
-      if(buttonStart->GetIsPress())
-      {
-        tickForwardOrBackward = TICK_MEDIUM;
-        mainMenu = TURN_MENU;
-      }
-      break;
-    }
-
-    case REVERSE_LONG:
-    {
-      oled.clearDisplay(); 
-      oled.setTextSize(1);
-      oled.setTextColor(WHITE);
-      oled.setCursor(1, 0);
-      oled.println("Selec largo de retroceso"); 
-      oled.setCursor(0, 9);
-      oled.println("---------------------"); 
-      oled.setCursor(0, 26);
-      oled.println("Retroceso largo"); 
-      oled.display();
-      if(buttonStrategy->GetIsPress()) positioningMenu = REVERSE_SHORT;
-      if(buttonStart->GetIsPress())
-      {
-        tickForwardOrBackward = TICK_LONG;
-        mainMenu = TURN_MENU;
-      }
-      break;
     }
   }
 }
@@ -1078,11 +818,6 @@ void mainProgram()
 {
   switch (mainMenu)
   {
-  case POSITIONING_MENU:
-  {
-    PositioningMenu();
-    break;
-  }
   case TURN_MENU:
   {
     TurnMenu();
@@ -1131,4 +866,7 @@ void loop()
 {
   sensorsReading();
   mainProgram();
+  printTatami();
+  printSharp();
+  printLdr();
 }
