@@ -8,14 +8,14 @@
 #include <Adafruit_SSD1306.h>
 
 //Motores
-#define PIN_RIGHT_ENGINE_DIR 18
-#define PIN_RIGHT_ENGINE_PWM 19
-#define PIN_LEFT_ENGINE_DIR 16
-#define PIN_LEFT_ENGINE_PWM 17
+#define PIN_RIGHT_ENGINE_DIR 16
+#define PIN_RIGHT_ENGINE_PWM 17
+#define PIN_LEFT_ENGINE_DIR 18
+#define PIN_LEFT_ENGINE_PWM 19
 #define PWM_CHANNEL_ENGINE_RIGHT 11
 #define PWM_CHANNEL_ENGINE_LEFT 12
 //Velocidades para los motores (segun el caso)
-#define SEARCH_SPEED 80
+#define SEARCH_SPEED 50
 #define AVERAGE_SPEED 100
 #define ATTACK_SPEED 220
 #define ATTACK_SPEED_AGGRESSIVE 240
@@ -32,11 +32,6 @@ int tickTurn;
 #define TICK_TURN_SIDE 95
 #define TICK_SHORT_BACK_TURN 115
 #define TICK_LONG_BACK_TURN 120
-//Ticks de reposicionamiento
-int tickForwardOrBackward;
-#define TICK_SHORT 20
-#define TICK_MEDIUM 30
-#define TICK_LONG 40
 
 //Botones
 #define PIN_BUTTON_BUTTON_START 34
@@ -47,7 +42,7 @@ int tickForwardOrBackward;
 #define PIN_SENSOR_LEFT 27
 int distSharpRight;
 int distSharpLeft;
-#define RIVAL 35
+#define RIVAL 36
 #define RIVAL_NEAR 15
 
 //Sensores de Tatami
@@ -174,14 +169,15 @@ void fight()
       
       if(turnSide == LEFT)
       {
-        Sami->Left(ATTACK_SPEED);
-        delay(MAX_SPEED);
+        Sami->Left(MAX_SPEED);
+        delay(tickTurn);
       }
       if(turnSide == RIGHT)
       {
-        Sami->Right(ATTACK_SPEED);
-        delay(MAX_SPEED);
+        Sami->Right(MAX_SPEED);
+        delay(tickTurn);
       }
+      Sami->Stop();
     }
 
 //<------------------------------------------------------------------------------------------------------------->//
@@ -415,7 +411,7 @@ void SemiAggressive()
     if (buttonStart->GetIsPress())
     {
       fight();
-      passive = SEARCH_PASSIVE;
+      semiAggressive = SEARCH_SEMI_AGGRESSIVE;
     } 
     break;
     }
@@ -623,7 +619,7 @@ int strategiesMenu = STRATEGY_MAIN_MENU;
 
 void StrategiesMenu()
 {
-  switch (mainMenu)
+  switch (strategiesMenu)
   {
   case STRATEGY_MAIN_MENU:
   {
@@ -742,5 +738,5 @@ void loop()
   sensorsReading();
   mainProgram();
   printSharp();
-  printTatami();
+  //printTatami();
 }

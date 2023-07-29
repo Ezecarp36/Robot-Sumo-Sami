@@ -5,10 +5,10 @@
 #include "BluetoothSerial.h"
 
 //Motores
-#define PIN_RIGHT_ENGINE_DIR 18
-#define PIN_RIGHT_ENGINE_PWM 19
-#define PIN_LEFT_ENGINE_DIR 16
-#define PIN_LEFT_ENGINE_PWM 17
+#define PIN_RIGHT_ENGINE_DIR 16
+#define PIN_RIGHT_ENGINE_PWM 17
+#define PIN_LEFT_ENGINE_DIR 18
+#define PIN_LEFT_ENGINE_PWM 19
 #define PWM_CHANNEL_ENGINE_RIGHT 11
 #define PWM_CHANNEL_ENGINE_LEFT 12
 //Velocidades para los motores (segun el caso)
