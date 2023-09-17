@@ -15,10 +15,10 @@
 #define PWM_CHANNEL_ENGINE_RIGHT 11
 #define PWM_CHANNEL_ENGINE_LEFT 12
 //Velocidades para los motores (segun el caso)
-#define SEARCH_SPEED 50
+#define SEARCH_SPEED 70
 #define AVERAGE_SPEED 100
-#define ATTACK_SPEED 220
-#define ATTACK_SPEED_AGGRESSIVE 240
+#define ATTACK_SPEED 200
+#define ATTACK_SPEED_AGGRESSIVE 230
 #define MAX_SPEED 255
 //Para la estrategia SemiPasiva
 int slowAttack = 40;
@@ -42,7 +42,7 @@ int tickTurn;
 #define PIN_SENSOR_LEFT 27
 int distSharpRight;
 int distSharpLeft;
-#define RIVAL 36
+#define RIVAL 40
 #define RIVAL_NEAR 15
 
 //Sensores de Tatami
@@ -219,30 +219,30 @@ void Passive()
     case SEARCH_PASSIVE:
     {
       Sami->Right(SEARCH_SPEED, SEARCH_SPEED);
-      if(leftTatamiRead < BORDE_TATAMI || righTatamiRead < BORDE_TATAMI) passive = TATAMI_LIMIT_PASSIVE;
+      if(distSharpRight <= RIVAL && distSharpLeft <= RIVAL) passive = ATTACK_PASSIVE;
       if(distSharpRight <= RIVAL && distSharpLeft > RIVAL) passive = TURN_RIGHT_PASSIVE;
       if(distSharpRight > RIVAL && distSharpLeft <= RIVAL) passive = TURN_LEFT_PASSIVE;
-      if(distSharpRight <= RIVAL && distSharpLeft <= RIVAL) passive = ATTACK_PASSIVE;
+      if(leftTatamiRead < BORDE_TATAMI || righTatamiRead < BORDE_TATAMI) passive = TATAMI_LIMIT_PASSIVE;
       break;    
     }
 
     case TURN_RIGHT_PASSIVE:
     {
       Sami->Right(SEARCH_SPEED, SEARCH_SPEED);
-      if(leftTatamiRead < BORDE_TATAMI || righTatamiRead < BORDE_TATAMI) passive = TATAMI_LIMIT_PASSIVE;
       if(distSharpRight > RIVAL && distSharpLeft > RIVAL) passive = SEARCH_PASSIVE;
       if(distSharpRight > RIVAL && distSharpLeft <= RIVAL) passive = TURN_LEFT_PASSIVE;
       if(distSharpRight <= RIVAL && distSharpLeft <= RIVAL) passive = ATTACK_PASSIVE;
+      if(leftTatamiRead < BORDE_TATAMI || righTatamiRead < BORDE_TATAMI) passive = TATAMI_LIMIT_PASSIVE;
       break;
     }
 
     case TURN_LEFT_PASSIVE:
     {
       Sami->Left(SEARCH_SPEED, SEARCH_SPEED);
-      if(leftTatamiRead < BORDE_TATAMI || righTatamiRead < BORDE_TATAMI) passive = TATAMI_LIMIT_PASSIVE;
       if(distSharpRight > RIVAL && distSharpLeft > RIVAL) passive = SEARCH_PASSIVE;
       if(distSharpRight <= RIVAL && distSharpLeft > RIVAL) passive = TURN_RIGHT_PASSIVE;
       if(distSharpRight <= RIVAL && distSharpLeft <= RIVAL) passive = ATTACK_PASSIVE;
+      if(leftTatamiRead < BORDE_TATAMI || righTatamiRead < BORDE_TATAMI) passive = TATAMI_LIMIT_PASSIVE;
       break;
     }
 
@@ -302,7 +302,7 @@ void SemiPassive()
     if (buttonStart->GetIsPress())
     {
       fight();
-      semiPassive = SEARCH_PASSIVE;
+      semiPassive = SEARCH_SEMI_PASSIVE;
     } 
     break;
     }
@@ -310,7 +310,6 @@ void SemiPassive()
     case SEARCH_SEMI_PASSIVE:
     {
       Sami->Right(SEARCH_SPEED, SEARCH_SPEED);
-      if(leftTatamiRead < BORDE_TATAMI || righTatamiRead < BORDE_TATAMI) semiPassive = TATAMI_LIMIT_SEMI_PASSIVE;
       if(distSharpRight <= RIVAL && distSharpLeft > RIVAL) semiPassive = TURN_RIGHT_SEMI_PASSIVE;
       if(distSharpRight > RIVAL && distSharpLeft <= RIVAL) semiPassive = TURN_LEFT_SEMI_PASSIVE;
       if(distSharpRight <= RIVAL && distSharpLeft <= RIVAL) semiPassive = ATTACK_SEMI_PASSIVE;
@@ -318,26 +317,27 @@ void SemiPassive()
       {
         semiPassive = LOW_ATTACK_SEMI_PASSIVE;
       }
+      if(leftTatamiRead < BORDE_TATAMI || righTatamiRead < BORDE_TATAMI) semiPassive = TATAMI_LIMIT_SEMI_PASSIVE;
       break;    
     }
 
     case TURN_RIGHT_SEMI_PASSIVE:
     {
       Sami->Right(SEARCH_SPEED, SEARCH_SPEED);
-      if(leftTatamiRead < BORDE_TATAMI || righTatamiRead < BORDE_TATAMI) semiPassive = TATAMI_LIMIT_SEMI_PASSIVE;
       if(distSharpRight > RIVAL && distSharpLeft > RIVAL) semiPassive = SEARCH_SEMI_PASSIVE;
       if(distSharpRight > RIVAL && distSharpLeft <= RIVAL) semiPassive = TURN_LEFT_SEMI_PASSIVE;
       if(distSharpRight <= RIVAL && distSharpLeft <= RIVAL) semiPassive = ATTACK_SEMI_PASSIVE;
+      if(leftTatamiRead < BORDE_TATAMI || righTatamiRead < BORDE_TATAMI) semiPassive = TATAMI_LIMIT_SEMI_PASSIVE;
       break;
     }
 
     case TURN_LEFT_SEMI_PASSIVE:
     {
       Sami->Left(SEARCH_SPEED, SEARCH_SPEED);
-      if(leftTatamiRead < BORDE_TATAMI || righTatamiRead < BORDE_TATAMI) semiPassive = TATAMI_LIMIT_SEMI_PASSIVE;
       if(distSharpRight > RIVAL && distSharpLeft > RIVAL) semiPassive = SEARCH_SEMI_PASSIVE;
       if(distSharpRight <= RIVAL && distSharpLeft > RIVAL) semiPassive = TURN_RIGHT_SEMI_PASSIVE;
       if(distSharpRight <= RIVAL && distSharpLeft <= RIVAL) semiPassive = ATTACK_SEMI_PASSIVE;
+      if(leftTatamiRead < BORDE_TATAMI || righTatamiRead < BORDE_TATAMI) semiPassive = TATAMI_LIMIT_SEMI_PASSIVE;
       break;
     }
 
@@ -419,29 +419,29 @@ void SemiAggressive()
     case SEARCH_SEMI_AGGRESSIVE:
     {
       Sami->Right(SEARCH_SPEED, SEARCH_SPEED);
-      if(leftTatamiRead < BORDE_TATAMI || righTatamiRead < BORDE_TATAMI) semiAggressive = TATAMI_LIMIT_SEMI_AGGRESSIVE;
       if(distSharpRight <= RIVAL && distSharpLeft > RIVAL) semiAggressive = TURN_RIGHT_SEMI_AGGRESSIVE;
       if(distSharpRight > RIVAL && distSharpLeft <= RIVAL) semiAggressive = TURN_LEFT_SEMI_AGGRESSIVE;
       if(distSharpRight <= RIVAL && distSharpLeft <= RIVAL) semiAggressive = ATTACK_SEMI_AGGRESSIVE; 
+      if(leftTatamiRead < BORDE_TATAMI || righTatamiRead < BORDE_TATAMI) semiAggressive = TATAMI_LIMIT_SEMI_AGGRESSIVE;
     }
 
     case TURN_RIGHT_SEMI_AGGRESSIVE:
     {
       Sami->Right(SEARCH_SPEED, SEARCH_SPEED);
-      if(leftTatamiRead < BORDE_TATAMI || righTatamiRead < BORDE_TATAMI) semiAggressive = TATAMI_LIMIT_SEMI_AGGRESSIVE;
       if(distSharpRight > RIVAL && distSharpLeft > RIVAL) semiAggressive = SEARCH_SEMI_AGGRESSIVE;
       if(distSharpRight > RIVAL && distSharpLeft <= RIVAL) semiAggressive = TURN_LEFT_SEMI_AGGRESSIVE;
       if(distSharpRight <= RIVAL && distSharpLeft <= RIVAL) semiAggressive = ATTACK_SEMI_AGGRESSIVE;
+      if(leftTatamiRead < BORDE_TATAMI || righTatamiRead < BORDE_TATAMI) semiAggressive = TATAMI_LIMIT_SEMI_AGGRESSIVE;
       break;
     }
 
     case TURN_LEFT_SEMI_AGGRESSIVE:
     {
       Sami->Left(SEARCH_SPEED, SEARCH_SPEED);
-      if(leftTatamiRead < BORDE_TATAMI || righTatamiRead < BORDE_TATAMI) semiAggressive = TATAMI_LIMIT_SEMI_AGGRESSIVE;
       if(distSharpRight > RIVAL && distSharpLeft > RIVAL) semiAggressive = SEARCH_SEMI_AGGRESSIVE;
       if(distSharpRight <= RIVAL && distSharpLeft > RIVAL) semiAggressive = TURN_RIGHT_SEMI_AGGRESSIVE;
       if(distSharpRight <= RIVAL && distSharpLeft <= RIVAL) semiAggressive = ATTACK_SEMI_AGGRESSIVE;
+      if(leftTatamiRead < BORDE_TATAMI || righTatamiRead < BORDE_TATAMI) semiAggressive = TATAMI_LIMIT_SEMI_AGGRESSIVE;
       break;
     }
 
@@ -451,10 +451,11 @@ void SemiAggressive()
       if(distSharpRight > RIVAL && distSharpLeft > RIVAL) semiAggressive = SEARCH_SEMI_AGGRESSIVE;
       if(distSharpRight <= RIVAL && distSharpLeft > RIVAL) semiAggressive = TURN_RIGHT_SEMI_AGGRESSIVE;
       if(distSharpRight > RIVAL && distSharpLeft <= RIVAL) semiAggressive = TURN_LEFT_SEMI_AGGRESSIVE;
-      if(leftTatamiRead < 250 || righTatamiRead < 250) semiPassive = TATAMI_LIMIT_SEMI_AGGRESSIVE;
+      if(leftTatamiRead < 250 || righTatamiRead < 250) semiAggressive = TATAMI_LIMIT_SEMI_AGGRESSIVE;
       if(distSharpRight <= 10 && distSharpLeft <= 10) 
       {
         Sami->Forward(MAX_SPEED, MAX_SPEED);
+        if(leftTatamiRead < BORDE_TATAMI || righTatamiRead < BORDE_TATAMI) semiAggressive = TATAMI_LIMIT_SEMI_AGGRESSIVE;
       }
       break;
     }

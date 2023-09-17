@@ -1,3 +1,0 @@
-Este codigo es para seleccionar la estrategia desde el codigo, por si la pantalla oled dejase de funcionar.
-Hay colocar la funcion de la estrategia a usar en el void loop y para inicicar el robot solo apretar start.
-No tiene para seleccionar giro de reposicionamiento
