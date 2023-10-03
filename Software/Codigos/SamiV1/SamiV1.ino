@@ -23,6 +23,7 @@
 //Para la estrategia SemiPasiva
 int slowAttack = 40;
 int lowAttackCont;
+int timeLowAttack = 388;
 unsigned long currentTimeAttack = 0;
 #define TICK_LOW_ATTACK 1600
 #define TICK_ATTACK_SEARCH 1500
@@ -140,8 +141,7 @@ enum mainMenu
   STRATEGIES_MENU,
   PASSIVE,
   SEMI_PASSIVE,
-  SEMI_AGGRESSIVE,
-  AGGRESSIVE,
+  SEMI_AGGRESSIVE
 };
 int mainMenu = TURN_MENU;
 
@@ -364,7 +364,7 @@ void SemiPassive()
       lowAttackCont++;
       slowAttack = slowAttack + (lowAttackCont*10);
       Sami->Forward(slowAttack, slowAttack);
-      delay(388);
+      delay(timeLowAttack);
       currentTimeAttack = millis();
       semiPassive = ATTACK_SEMI_PASSIVE;
       break;
