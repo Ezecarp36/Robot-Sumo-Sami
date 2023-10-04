@@ -423,6 +423,7 @@ void SemiAggressive()
       if(distSharpRight > RIVAL && distSharpLeft <= RIVAL) semiAggressive = TURN_LEFT_SEMI_AGGRESSIVE;
       if(distSharpRight <= RIVAL && distSharpLeft <= RIVAL) semiAggressive = ATTACK_SEMI_AGGRESSIVE; 
       if(leftTatamiRead < BORDE_TATAMI || righTatamiRead < BORDE_TATAMI) semiAggressive = TATAMI_LIMIT_SEMI_AGGRESSIVE;
+      break;
     }
 
     case TURN_RIGHT_SEMI_AGGRESSIVE:
@@ -739,5 +740,5 @@ void loop()
   sensorsReading();
   mainProgram();
   printSharp();
-  //printTatami();
+  printTatami();
 }
