@@ -15,6 +15,5 @@ float AnalogSensor::SensorRead()
     }
     float read = sum / n;
     read = read * 1000 / 1024.0;
-
     return (read);
 }

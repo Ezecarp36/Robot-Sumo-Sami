@@ -17,9 +17,9 @@
 //Velocidades para los motores (segun el caso)
 #define SEARCH_SPEED 80
 #define AVERAGE_SPEED 100
-#define ATTACK_SPEED 220
-#define ATTACK_SPEED_AGGRESSIVE 235
-#define ATTACK_SPEED_LDR 240
+#define ATTACK_SPEED 230
+#define ATTACK_SPEED_AGGRESSIVE 240
+#define ATTACK_SPEED_LDR 245
 #define MAX_SPEED 255
 //Para la estrategia SemiPasiva
 int speedSlowAttack = 40;
@@ -44,7 +44,7 @@ int tickTurn;
 #define PIN_SENSOR_LEFT 27
 int distSharpRight;
 int distSharpLeft;
-#define RIVAL 35
+#define RIVAL 60
 #define RIVAL_NEAR 15
 
 //Sensores de Tatami
@@ -55,8 +55,8 @@ int righTatamiRead;
 #define BORDE_TATAMI 300
 
 //Variables y constantes LDR
-#define PIN_SENSOR_LDR 23
-#define MONTADO 100
+#define PIN_SENSOR_LDR 39
+#define MONTADO 300
 int ldr;
 
 //Variables y constantes para el debug por bloutooth
@@ -687,7 +687,7 @@ void TurnMenu()
     oled.setCursor(0, 26);
     oled.println("Giro de 120 grados"); 
     oled.display();
-    if(buttonStrategy->GetIsPress()) turnMenu = TICK_SHORT_BACK_TURN;
+    if(buttonStrategy->GetIsPress()) turnMenu = LONG_BACK_TURN;
     if(buttonStart->GetIsPress())
     {
       tickTurn = TICK_SHORT_BACK_TURN;
@@ -705,7 +705,7 @@ void TurnMenu()
     oled.setCursor(0, 26);
     oled.println("Giro de 150 grados"); 
     oled.display();
-    if(buttonStrategy->GetIsPress()) turnMenu = TICK_LONG_BACK_TURN;
+    if(buttonStrategy->GetIsPress()) turnMenu = TURN_FRONT;
     if(buttonStart->GetIsPress())
     {
       tickTurn = TICK_LONG_BACK_TURN;
@@ -861,6 +861,7 @@ void setup()
 {
   Wire.begin();
   oled.begin(SSD1306_SWITCHCAPVCC, 0x3C);
+  SerialBT.begin("sami");
 }
 
 
@@ -868,7 +869,7 @@ void loop()
 {
   sensorsReading();
   mainProgram();
-  printTatami();
-  printSharp();
-  printLdr();
+  if(DEBUG_SHARP) printTatami();
+  if(DEBUG_TATAMI) printSharp();
+  if(DEBUG_SHARP)printLdr();
 }

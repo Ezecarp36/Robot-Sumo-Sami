@@ -43,8 +43,8 @@ int tickTurn;
 #define PIN_SENSOR_LEFT 27
 int distSharpRight;
 int distSharpLeft;
-#define RIVAL 40
-#define RIVAL_NEAR 15
+#define RIVAL 50
+#define RIVAL_NEAR 17
 
 //Sensores de Tatami
 #define PIN_SENSOR_TATAMI_RIGHT 25
@@ -252,7 +252,7 @@ void Passive()
       if(distSharpRight > RIVAL && distSharpLeft > RIVAL) passive = SEARCH_PASSIVE;
       if(distSharpRight <= RIVAL && distSharpLeft > RIVAL) passive = TURN_RIGHT_PASSIVE;
       if(distSharpRight > RIVAL && distSharpLeft <= RIVAL) passive = TURN_LEFT_PASSIVE;
-      if(distSharpRight <= 15 && distSharpLeft <= 15)
+      if(distSharpRight <= RIVAL_NEAR && distSharpLeft <= RIVAL_NEAR)
       {
         Sami->Forward(ATTACK_SPEED_AGGRESSIVE);
         if(leftTatamiRead < BORDE_TATAMI || righTatamiRead < BORDE_TATAMI) passive = TATAMI_LIMIT_PASSIVE;
@@ -351,7 +351,7 @@ void SemiPassive()
       {
         semiPassive = LOW_ATTACK_SEMI_PASSIVE;
       }
-      if(distSharpRight <= 15 && distSharpLeft <= 15)
+      if(distSharpRight <= RIVAL_NEAR && distSharpLeft <= RIVAL_NEAR)
       {
         Sami->Forward(ATTACK_SPEED_AGGRESSIVE, ATTACK_SPEED_AGGRESSIVE);
         if(leftTatamiRead < BORDE_TATAMI || righTatamiRead < BORDE_TATAMI) semiPassive = TATAMI_LIMIT_SEMI_PASSIVE;
@@ -453,7 +453,7 @@ void SemiAggressive()
       if(distSharpRight <= RIVAL && distSharpLeft > RIVAL) semiAggressive = TURN_RIGHT_SEMI_AGGRESSIVE;
       if(distSharpRight > RIVAL && distSharpLeft <= RIVAL) semiAggressive = TURN_LEFT_SEMI_AGGRESSIVE;
       if(leftTatamiRead < 250 || righTatamiRead < 250) semiAggressive = TATAMI_LIMIT_SEMI_AGGRESSIVE;
-      if(distSharpRight <= 10 && distSharpLeft <= 10) 
+      if(distSharpRight <= RIVAL_NEAR && distSharpLeft <= RIVAL_NEAR) 
       {
         Sami->Forward(MAX_SPEED, MAX_SPEED);
         if(leftTatamiRead < BORDE_TATAMI || righTatamiRead < BORDE_TATAMI) semiAggressive = TATAMI_LIMIT_SEMI_AGGRESSIVE;
@@ -731,7 +731,6 @@ void setup()
   Wire.begin();
   oled.begin(SSD1306_SWITCHCAPVCC, 0x3C);
   SerialBT.begin("sami");
-  
 }
 
 
