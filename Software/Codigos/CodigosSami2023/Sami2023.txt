@@ -1,0 +1,2 @@
+En la versión del 2023 Sami tiene una pantalla oled integrada en el robot, debido a que esta se rompio varias veces en competencia 
+esta misma fue removida en su nueva versión contará con un menu externo a modo de control remoto.
